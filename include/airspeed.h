@@ -2,6 +2,8 @@
 #include <Arduino.h>
 // #include "simple_i2c.h"
 // #include <Wire.h>
+
+#include <../lib/TeensyThreads/TeensyThreads.h>
 #include "drivers/ms4525.h"
 #define I2C_ADDRESS_MS4525DO    (0x28)
 #define ADDRESS_READ_MR         (0x00)
@@ -18,18 +20,26 @@ void airspeed_calibrate()
     }
     offset = sum/2000;
 }
-void airspeed_init(){
-    // Wire2.begin();
-    ms4525_init();
-    airspeed_calibrate();
-}
+
 void airspeed_update(){
     airspeed_GetData();
     calculateAirspeed();
     // moving average filter : 
 }
-void calculateAirspeed()
-{
+
+void airspeed_update_thd(){
+    while(1);
+    airspeed_update();
+}
+
+void airspeed_init(){
+    // Wire2.begin();
+    ms4525_init();
+    airspeed_calibrate();
+    threads.addThread(airspeed_update_thd);
+}
+
+void calculateAirspeed(){
     filtered_pressure = 0.7f * filtered_pressure + 0.3f * airspeed_pressure;
     true_airspeed  = sqrtf(MAX(filtered_pressure,0) * ratio)*0.5f;
     if (isnan(true_airspeed)) {true_airspeed = 0;}

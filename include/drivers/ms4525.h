@@ -8,7 +8,7 @@
 #define ADDRESS_READ_MR         (0x00)
 
 float true_airspeed;
-float qairspeed_pressure;
+float airspeed_pressure;
 float filtered_pressure;
 uint8_t airspeed_status;
 uint16_t dp_raw          = 0;
